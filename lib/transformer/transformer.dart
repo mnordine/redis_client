@@ -4,8 +4,8 @@ part of redis_protocol_transformer;
 /// Responsible for transformation from stream of int to stream of RedisReply
 class RedisStreamTransformerHandler {
 
-  StreamTransformer createTransformer() =>
-    new StreamTransformer.fromHandlers(handleData: handleData,
+  StreamTransformer<Uint8List, RedisReply> createTransformer() =>
+    new StreamTransformer<Uint8List, RedisReply>.fromHandlers(handleData: handleData,
         handleError: handleError, handleDone: handleDone);
 
   void handleDone(EventSink<RedisReply> output) {
@@ -23,7 +23,7 @@ class RedisStreamTransformerHandler {
     sink.addError(error, stackTrace);
   }
 
-  void handleData(List<int> data, EventSink<RedisReply> output) {
+  void handleData(Uint8List data, EventSink<RedisReply> output) {
     // I'm not entirely sure this is necessary, but better be safe.
     if (data.length == 0) return;
 

@@ -110,7 +110,7 @@ class _RedisConnection extends RedisConnection {
   final Completer<RedisConnection> _connectedCompleter = new Completer<RedisConnection>();
 
   /// Gets resolved as soon as the connection is up.
-  Future<RedisConnection> connected;
+  Future<RedisConnection> get connected => _connectedCompleter.future;
 
 
   /// The character sequence that ends data.
@@ -158,7 +158,7 @@ class _RedisConnection extends RedisConnection {
 
     logger.info("Creating socket connection ($hostname, $port)");
 
-    this.connected = Socket.connect(hostname, port)
+    Socket.connect(hostname, port)
         .then((Socket socket) {
           logger.info("Connected socket");
 
@@ -168,10 +168,12 @@ class _RedisConnection extends RedisConnection {
 
           // Setting up all the listeners so Redis responses can be interpreted.
           socket
-            .transform(_streamTransformerHandler.createTransformer())
+            .transform<RedisReply>(_streamTransformerHandler.createTransformer())
             .listen(_onRedisReply, onError: _onStreamError, onDone: _onStreamDone);
 
           isConnected = true;
+
+          _connectedCompleter.complete(this);
 
           if (password != null) return _authenticate(password);
         })
@@ -194,7 +196,7 @@ class _RedisConnection extends RedisConnection {
   Future close() {
     logger.fine("Closing connection.");
     isConnected = false;
-    return this.connected.then((_) => _socket.close());
+    return this.connected.then((_) => _socket?.close());
   }
 
 
