@@ -21,7 +21,7 @@ class PublishBenchmark extends BenchmarkBase {
 
     bool allAccountedFor() => matched == 0;
 
-    final f = RedisClient
+    final _ = RedisClient
       .connect('localhost:6379')
       .then((RedisClient redisClient) {
         List<Future> futures = [];

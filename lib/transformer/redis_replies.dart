@@ -29,7 +29,7 @@ class BulkReply extends RedisReply {
 
   String get string {
     if(_dataAsString == null) {
-      _dataAsString = bytes == null? bytes : UTF8.decode(bytes);
+      _dataAsString = bytes == null? bytes : utf8.decode(bytes);
     }
     return _dataAsString;
   }

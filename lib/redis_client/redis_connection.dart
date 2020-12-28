@@ -164,7 +164,7 @@ class _RedisConnection extends RedisConnection {
 
           _socket = socket;
           //disable Nagle's algorithm
-          socket.setOption(SocketOption.TCP_NODELAY,true);
+          socket.setOption(SocketOption.tcpNoDelay,true);
 
           // Setting up all the listeners so Redis responses can be interpreted.
           socket
@@ -298,7 +298,7 @@ class _RedisConnection extends RedisConnection {
    * This function converts the [String]s to binary data, and forwards to
    * [rawSend].
    */
-  Receiver send(List<String> cmdWithArgs) => rawSend(cmdWithArgs.map((String line) => UTF8.encode(line)).toList(growable: false));
+  Receiver send(List<String> cmdWithArgs) => rawSend(cmdWithArgs.map((String line) => utf8.encode(line)).toList(growable: false));
 
 
   /**
@@ -309,15 +309,15 @@ class _RedisConnection extends RedisConnection {
   Receiver sendCommand(List<int> command, List<String> args) {
     var commands = new List<List<int>>(args.length + 1);
     commands[0] = command;
-    commands.setAll(1, args.map((String line) => UTF8.encode(line)).toList(growable: false));
+    commands.setAll(1, args.map((String line) => utf8.encode(line)).toList(growable: false));
     return rawSend(commands);
   }
 
   Receiver sendCommandWithVariadicValues(List<int> command, List<String> args, List<String> values) {
     var commands = new List<List<int>>(args.length + values.length + 1);
     commands[0] = command;
-    commands.setAll(1, args.map((String line) => UTF8.encode(line)).toList(growable: false));
-    commands.setAll(args.length + 1, values.map((String line) => UTF8.encode(line)).toList(growable: false));
+    commands.setAll(1, args.map((String line) => utf8.encode(line)).toList(growable: false));
+    commands.setAll(args.length + 1, values.map((String line) => utf8.encode(line)).toList(growable: false));
     return rawSend(commands);
   }
 
@@ -326,7 +326,7 @@ class _RedisConnection extends RedisConnection {
    *
    * Eg.:
    *
-   *     rawSend([ "GET".codeUnits, UTF8.encode("keyname") ]).receiveBulkString().then((String value) { });
+   *     rawSend([ "GET".codeUnits, utf8.encode("keyname") ]).receiveBulkString().then((String value) { });
    */
   Receiver rawSend(List<List<int>> cmdWithArgs) {
     
@@ -337,7 +337,7 @@ class _RedisConnection extends RedisConnection {
     
    
     if( logger.level <= Level.FINEST){
-      logger.finest("Sending message ${UTF8.decode(cmdWithArgs[0])}");
+      logger.finest("Sending message ${utf8.decode(cmdWithArgs[0])}");
     }
     
     //we call _socket.add only once and we try to avoid string concat
@@ -411,7 +411,7 @@ class Receiver {
         }
         throw new RedisClientException("The returned reply was not of type IntegerReply but ${reply.runtimeType}.${error}");
       }
-      return reply.integer;
+      return (reply as IntegerReply).integer;
     });
   }
 
@@ -433,7 +433,7 @@ class Receiver {
 
         throw new RedisClientException("The returned reply was not of type ErrorReply but ${reply.runtimeType}");
       }
-      return reply.error;
+      return (reply as ErrorReply).error;
     });
   }
 
@@ -459,10 +459,11 @@ class Receiver {
         }
         throw new RedisClientException("The returned reply was not of type StatusReply but ${reply.runtimeType}.${error}");
       }
-      if (expectedStatus != null && (expectedStatus != reply.status)) {
-        throw new RedisClientException("The returned status was not $expectedStatus but ${reply.status}.");
+      final statusReply = reply as StatusReply;
+      if (expectedStatus != null && (expectedStatus != statusReply.status)) {
+        throw new RedisClientException("The returned status was not $expectedStatus but ${statusReply.status}.");
       }
-      return reply.status;
+      return statusReply.status;
     });
   }
 
@@ -479,7 +480,7 @@ class Receiver {
         }
         throw new RedisClientException("The returned reply was not of type BulkReply but ${reply.runtimeType}.${error}");
       }
-      return reply.bytes;
+      return (reply as BulkReply).bytes;
     });
   }
 
@@ -495,7 +496,7 @@ class Receiver {
         }
         throw new RedisClientException("The returned reply was not of type BulkReply but ${reply.runtimeType}.${error}");
       }
-      return reply.string;
+      return (reply as BulkReply).string;
     });
   }
 
@@ -518,7 +519,7 @@ class Receiver {
         }
         throw new RedisClientException("The returned reply was not of type MultiBulkReply but ${reply.runtimeType}.${error}");
       }
-      return reply;
+      return reply as MultiBulkReply;
     });
   }
 
@@ -528,7 +529,7 @@ class Receiver {
    */
   Future<List<String>> receiveMultiBulkStrings() {
     return receiveMultiBulk().then((MultiBulkReply reply) {
-      return reply.replies.map((BulkReply reply) => reply.string).toList(growable: false);
+      return reply.replies.map((reply) => (reply as BulkReply).string).toList(growable: false);
     });
   }
 
@@ -539,7 +540,7 @@ class Receiver {
   Future<List<Object>> receiveMultiBulkDeserialized(RedisSerializer serializer) {
     return receiveMultiBulk().then((MultiBulkReply reply) {
       return reply.replies.map(
-          (BulkReply reply) => serializer.deserialize(reply.bytes)).toList(growable: false);
+          (reply) => serializer.deserialize((reply as BulkReply).bytes)).toList(growable: false);
     });
   }
 
@@ -550,7 +551,7 @@ class Receiver {
   Future<Set<Object>> receiveMultiBulkSetDeserialized(RedisSerializer serializer) {
     return receiveMultiBulk().then((MultiBulkReply reply) {
       return reply.replies.map(
-          (BulkReply reply) => serializer.deserialize(reply.bytes)).toSet();
+          (reply) => serializer.deserialize((reply as BulkReply).bytes)).toSet();
     });
   }
 

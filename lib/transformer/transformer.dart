@@ -155,7 +155,7 @@ abstract class _LineConsumer extends _RedisConsumer {
     return current;
   }
 
-  String get line => _line == null? (_line = UTF8.decode(data)) : _line;
+  String get line => _line == null? (_line = utf8.decode(data)) : _line;
   bool get done => _done;
 
   /// The line data as String

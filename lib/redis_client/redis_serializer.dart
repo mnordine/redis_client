@@ -39,7 +39,7 @@ class JsonRedisSerializer implements RedisSerializer {
    */
   List<int> serialize(Object obj) {
     if (obj == null) return obj;
-    return UTF8.encode(serializeToString(obj));
+    return utf8.encode(serializeToString(obj));
   }
   
   /**
@@ -49,7 +49,7 @@ class JsonRedisSerializer implements RedisSerializer {
     if (obj == null || obj is String) return obj;
     else if (obj is DateTime) return "$DATE_PREFIX${obj.millisecondsSinceEpoch}$DATE_SUFFIX";
     else if (obj is Set) return serializeToString(obj.toList());
-    else return JSON.encode(obj);
+    else return json.encode(obj);
   }
   
   /**
@@ -74,8 +74,8 @@ class JsonRedisSerializer implements RedisSerializer {
   Object deserialize(List<int> deserializable) {
     if (deserializable == null) return deserializable;
     
-    var decodedObject = UTF8.decode(deserializable);
-    try { decodedObject = JSON.decode(decodedObject); } 
+    var decodedObject = utf8.decode(deserializable);
+    try { decodedObject = json.decode(decodedObject); }
     on FormatException catch (e) { }
     
     if (decodedObject is String) {
@@ -111,9 +111,9 @@ class JsonRedisSerializer implements RedisSerializer {
     return variadicValueList;
   }
 
-  Map<String, Object> deserializeToMap(List<RedisReply> replies) {
+  Map<String, Object> deserializeToMap(replies) {
     var multiBulkMap = new Map<String, Object>();
-    if (replies.isNotEmpty) {
+    if ((replies as List<RedisReply>).isNotEmpty) {
       for (int i = 0 ; i < replies.length ; i++) {
         multiBulkMap[deserialize((replies[i] as BulkReply).bytes)] = deserialize((replies[++i] as BulkReply).bytes);
       }

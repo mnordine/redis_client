@@ -8,7 +8,6 @@ import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
 
 import 'package:redis_client/redis_protocol_transformer.dart';
-import 'package:redis_client/redis_client.dart';
 
 
 class MockSink extends Mock implements EventSink<RedisReply> {
@@ -45,19 +44,19 @@ main() {
 
         var redisConnection = new RedisStreamTransformerHandler();
 
-        redisConnection.handleData(UTF8.encode("+Status message\r\n"), sink);
+        redisConnection.handleData(utf8.encode("+Status message\r\n"), sink);
         expect(sink.replies.length, equals(1));
         expect(sink.replies.last.runtimeType, equals(StatusReply));
         StatusReply tested1 = sink.replies.last;
         expect(tested1.status, equals("Status message"));
 
-        redisConnection.handleData(UTF8.encode("-Error message\r\n"), sink);
+        redisConnection.handleData(utf8.encode("-Error message\r\n"), sink);
         expect(sink.replies.length, equals(2));
         expect(sink.replies.last.runtimeType, equals(ErrorReply));
         ErrorReply tested2 = sink.replies.last;
         expect(tested2.error, equals("Error message"));
 
-        redisConnection.handleData(UTF8.encode(":12345\r\n"), sink);
+        redisConnection.handleData(utf8.encode(":12345\r\n"), sink);
         expect(sink.replies.length, equals(3));
         expect(sink.replies.last.runtimeType, equals(IntegerReply));
         IntegerReply tested3 = sink.replies.last;
@@ -68,9 +67,9 @@ main() {
 
         var redisConnection = new RedisStreamTransformerHandler();
 
-        redisConnection.handleData(UTF8.encode("+"), sink);
+        redisConnection.handleData(utf8.encode("+"), sink);
         expect(sink.replies.length, equals(0));
-        redisConnection.handleData(UTF8.encode("Hi there\r\n"), sink);
+        redisConnection.handleData(utf8.encode("Hi there\r\n"), sink);
         expect(sink.replies.length, equals(1));
         expect(sink.replies[0].runtimeType, equals(StatusReply));
         StatusReply testedStatus = sink.replies[0];
@@ -82,7 +81,7 @@ main() {
 
         var redisConnection = new RedisStreamTransformerHandler();
 
-        redisConnection.handleData(UTF8.encode("+Status message\r\n:132\r\n-Error message\r\n"), sink);
+        redisConnection.handleData(utf8.encode("+Status message\r\n:132\r\n-Error message\r\n"), sink);
         expect(sink.replies.length, equals(3));
         expect(sink.replies[0].runtimeType, equals(StatusReply));
         expect(sink.replies[1].runtimeType, equals(IntegerReply));
@@ -101,19 +100,19 @@ main() {
 
         var redisConnection = new RedisStreamTransformerHandler();
 
-        redisConnection.handleData(UTF8.encode("+Status m"), sink);
+        redisConnection.handleData(utf8.encode("+Status m"), sink);
         expect(sink.replies.length, equals(0));
 
-        redisConnection.handleData(UTF8.encode("essage\r"), sink);
+        redisConnection.handleData(utf8.encode("essage\r"), sink);
         // Shouldn't be handled yet because of the missing \n
         expect(sink.replies.length, equals(0));
 
-        redisConnection.handleData(UTF8.encode("\n:1234\r\n-Start of err"), sink);
+        redisConnection.handleData(utf8.encode("\n:1234\r\n-Start of err"), sink);
 
         // Should have handled the status and the integer
         expect(sink.replies.length, equals(2));
 
-        redisConnection.handleData(UTF8.encode("or end\r\n"), sink);
+        redisConnection.handleData(utf8.encode("or end\r\n"), sink);
 
         expect(sink.replies.length, equals(3));
 
@@ -137,7 +136,7 @@ main() {
 
         var redisConnection = new RedisStreamTransformerHandler();
 
-        redisConnection.handleData(UTF8.encode("\$6\r\nfoobar\r\n"), sink);
+        redisConnection.handleData(utf8.encode("\$6\r\nfoobar\r\n"), sink);
 
         expect(sink.replies.length, equals(1));
         expect(sink.replies.first.runtimeType, equals(BulkReply));
@@ -150,7 +149,7 @@ main() {
 
         var redisConnection = new RedisStreamTransformerHandler();
 
-        redisConnection.handleData(UTF8.encode("\$6\r\nfoobar\r\n\$8\r\nfoobars2\r\n"), sink);
+        redisConnection.handleData(utf8.encode("\$6\r\nfoobar\r\n\$8\r\nfoobars2\r\n"), sink);
 
         expect(sink.replies.length, equals(2));
         expect(sink.replies.first.runtimeType, equals(BulkReply));
@@ -165,10 +164,10 @@ main() {
 
         var redisConnection = new RedisStreamTransformerHandler();
 
-        redisConnection.handleData(UTF8.encode("\$-"), sink);
-        redisConnection.handleData(UTF8.encode("1\r"), sink);
+        redisConnection.handleData(utf8.encode("\$-"), sink);
+        redisConnection.handleData(utf8.encode("1\r"), sink);
         expect(sink.replies.length, equals(0));
-        redisConnection.handleData(UTF8.encode("\n"), sink);
+        redisConnection.handleData(utf8.encode("\n"), sink);
         expect(sink.replies.length, equals(1));
 
         BulkReply reply = sink.replies.first;
@@ -181,23 +180,23 @@ main() {
 
         var redisConnection = new RedisStreamTransformerHandler();
 
-        redisConnection.handleData(UTF8.encode("\$6\r\nfoo"), sink);
+        redisConnection.handleData(utf8.encode("\$6\r\nfoo"), sink);
 
         expect(sink.replies.length, equals(0));
 
-        redisConnection.handleData(UTF8.encode("bar\r"), sink);
+        redisConnection.handleData(utf8.encode("bar\r"), sink);
 
         expect(sink.replies.length, equals(0));
 
-        redisConnection.handleData(UTF8.encode("\n\$4\r\ntest\r\n\$"), sink);
+        redisConnection.handleData(utf8.encode("\n\$4\r\ntest\r\n\$"), sink);
 
         expect(sink.replies.length, equals(2));
 
-        redisConnection.handleData(UTF8.encode("3\r\nend\r\n\$1"), sink);
+        redisConnection.handleData(utf8.encode("3\r\nend\r\n\$1"), sink);
 
         expect(sink.replies.length, equals(3));
 
-        redisConnection.handleData(UTF8.encode("1\r\nabcdefghijk\r\n"), sink);
+        redisConnection.handleData(utf8.encode("1\r\nabcdefghijk\r\n"), sink);
 
         expect(sink.replies.length, equals(4));
 
@@ -224,11 +223,11 @@ main() {
 
         var redisConnection = new RedisStreamTransformerHandler();
 
-        redisConnection.handleData(UTF8.encode("\$6\r\nfoo"), sink);
-        redisConnection.handleData(UTF8.encode("bar\r\n+Mess"), sink);
-        redisConnection.handleData(UTF8.encode("age"), sink);
-        redisConnection.handleData(UTF8.encode("\r\n-Error message\r\n:12345\r"), sink);
-        redisConnection.handleData(UTF8.encode("\n"), sink);
+        redisConnection.handleData(utf8.encode("\$6\r\nfoo"), sink);
+        redisConnection.handleData(utf8.encode("bar\r\n+Mess"), sink);
+        redisConnection.handleData(utf8.encode("age"), sink);
+        redisConnection.handleData(utf8.encode("\r\n-Error message\r\n:12345\r"), sink);
+        redisConnection.handleData(utf8.encode("\n"), sink);
 
         expect(sink.replies.length, equals(4));
 
@@ -250,13 +249,13 @@ main() {
 
         var redisConnection = new RedisStreamTransformerHandler();
 
-        redisConnection.handleData(UTF8.encode("\*4\r\n:5\r"), sink);
-        redisConnection.handleData(UTF8.encode("\n-Error\r\n+Status\r\n\$6\r"), sink);
-        redisConnection.handleData(UTF8.encode("\nfoobar"), sink);
+        redisConnection.handleData(utf8.encode("\*4\r\n:5\r"), sink);
+        redisConnection.handleData(utf8.encode("\n-Error\r\n+Status\r\n\$6\r"), sink);
+        redisConnection.handleData(utf8.encode("\nfoobar"), sink);
 
         expect(sink.replies.length, equals(0));
 
-        redisConnection.handleData(UTF8.encode("\r\n"), sink);
+        redisConnection.handleData(utf8.encode("\r\n"), sink);
 
         expect(sink.replies.length, equals(1));
 
@@ -285,11 +284,11 @@ main() {
 
         var redisConnection = new RedisStreamTransformerHandler();
 
-        redisConnection.handleData(UTF8.encode("\*"), sink);
+        redisConnection.handleData(utf8.encode("\*"), sink);
         expect(sink.replies.length, equals(0));
-        redisConnection.handleData(UTF8.encode("0\r"), sink);
+        redisConnection.handleData(utf8.encode("0\r"), sink);
         expect(sink.replies.length, equals(0));
-        redisConnection.handleData(UTF8.encode("\n"), sink);
+        redisConnection.handleData(utf8.encode("\n"), sink);
         expect(sink.replies.length, equals(1));
 
         MultiBulkReply test = sink.replies.first;
@@ -301,29 +300,29 @@ main() {
 
         var redisConnection = new RedisStreamTransformerHandler();
 
-        redisConnection.handleData(UTF8.encode("\*2\r\n:5\r\n:6\r\n\*2\r\n:8\r\n:9\r\n"), sink);
+        redisConnection.handleData(utf8.encode("\*2\r\n:5\r\n:6\r\n\*2\r\n:8\r\n:9\r\n"), sink);
 
         expect(sink.replies, hasLength(2));
 
         MultiBulkReply mbr1 = sink.replies[0];
         expect(mbr1.replies, hasLength(2));
-        expect(mbr1.replies[0], new isInstanceOf<IntegerReply>());
+        expect(mbr1.replies[0], isA<IntegerReply>());
         expect((mbr1.replies[0] as IntegerReply).integer, equals(5));
 
         MultiBulkReply mbr2 = sink.replies[1];
         expect(mbr2.replies, hasLength(2));
-        expect(mbr2.replies[0], new isInstanceOf<IntegerReply>());
+        expect(mbr2.replies[0], isA<IntegerReply>());
         expect((mbr2.replies[0] as IntegerReply).integer, equals(8));
       });
     });
 
-    group("UTF8", () {
+    group("utf8", () {
       test("should properly be handled in bulk and one line replies", () {
         var sink = new MockSink();
 
         var redisConnection = new RedisStreamTransformerHandler();
 
-        redisConnection.handleData(UTF8.encode("\$9\r\nfo¢b€r\r\n"), sink);
+        redisConnection.handleData(utf8.encode("\$9\r\nfo¢b€r\r\n"), sink);
 
         BulkReply tested1 = sink.replies[0];
         expect(tested1.string, equals("fo¢b€r"));

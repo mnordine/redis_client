@@ -718,7 +718,6 @@ invalid_line
     
     test('HDEL', () {
       int someInt = 4;
-      String someString = 'some-string';
       async(
             client.hset('hashId', 'field', someInt)
             .then((_) => client.hdel('hashId', 'field')
@@ -1179,7 +1178,7 @@ invalid_line
       Set<ZSetEntry> zSet2 = new Set<ZSetEntry>.from([ new ZSetEntry('one', 1), 
                                                       new ZSetEntry('two', 2), 
                                                       new ZSetEntry('three', 3) ]);
-      var weights = [ 2, 3 ];
+      var weights = [ '2', '3' ];
       
       async(client.zadd('setId', zSet)
           .then((_) => client.zadd('setId2', zSet2)

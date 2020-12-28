@@ -14,18 +14,18 @@ class A {
                 'value' : value
     };
     
-    return JSON.encode(data);
+    return json.encode(data);
   }
   
   A.fromJson(json) {
-    var data = JSON.decode(json);
+    var data = json.decode(json);
     value = data['value'];
   }
 }
 
 main() {
 
-    group('JSONRedisSerializer tests', () {
+    group('jsonRedisSerializer tests', () {
   
       RedisSerializer serializer = new JsonRedisSerializer();
       

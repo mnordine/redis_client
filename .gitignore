@@ -13,3 +13,4 @@ test/packages
 .children
 .project
 .idea
+.dart_tool

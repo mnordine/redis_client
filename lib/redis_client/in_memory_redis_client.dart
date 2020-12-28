@@ -8,14 +8,13 @@ class InMemoryRedisClient {
   InMemoryRedisClient() :
     _keys = {};
 
-  Future<List<String>> keys(String pattern){
-    Completer<List<String>> task = new Completer<List<String>>();
+  Future<List<String>> keys(String pattern) async {
     List<Object> values = [];
     _keys.forEach((k,v){
       if (_globMatch(k, pattern)) values.add(v);
     });
-    task.complete(values);
-    return task.future;
+
+    return values;
   }
 
   Future<Object> get(String key) {
